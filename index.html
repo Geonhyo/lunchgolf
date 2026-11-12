@@ -15,8 +15,17 @@
   #hud .sw:hover{background:#2b2b2b;color:#fff}
   #hud .chip.bet{border-color:#e0453a;color:#e0453a}
   #hud .t2{margin-top:2px}
-  #hud .big{margin-top:6px;color:#2b2b2b;font-size:30px;font-weight:900;line-height:1;letter-spacing:-.5px}
-  #hud .big small{font-size:12px;font-weight:600;color:#999;margin-left:4px;letter-spacing:0}
+  #hud .sg{display:flex;margin-top:8px;border-top:1px solid #e3e3e3;border-bottom:1px solid #e3e3e3;width:max-content}
+  #hud .sg div{padding:5px 10px 4px;border-left:1px solid #e3e3e3;text-align:left}
+  #hud .sg div:first-child{border-left:0;padding-left:0}
+  #hud .sg i{display:block;font-style:normal;font-size:10px;color:#a5a5a5;letter-spacing:.5px}
+  #hud .sg b{font-size:15px;color:#2b2b2b;font-weight:800}
+  #hud .sg b small{font-size:11px;color:#aaa;font-weight:600}
+  #hud .turn{margin-top:8px;font-size:12px;font-weight:700;color:#e0453a}
+  #hud .vs{display:flex;align-items:baseline;gap:8px;margin-top:8px;font-size:12px;padding:5px 0;border-top:1px dashed #ddd;width:max-content;min-width:220px}
+  #hud .vs span{color:#999}#hud .vs b{color:#2b2b2b}#hud .vs em{font-style:normal;margin-left:auto;color:#e0453a;font-weight:800}
+  #hud .big{margin-top:10px;color:#2b2b2b;font-size:40px;font-weight:900;line-height:1;letter-spacing:-1px}
+  #hud .big small{font-size:13px;font-weight:600;color:#999;margin-left:3px;letter-spacing:0}
   #hud .t3{margin-top:6px}
   #hud .t3 b{color:#2b2b2b}
   #hud .t3 .r{color:#e0453a;font-weight:700}
@@ -129,11 +138,12 @@
   .rules b{display:block;font-size:13px;margin-bottom:2px}
   .rules .on{color:#e0453a;font-weight:700}
   #hud .chip{display:none}
-  #hud .t1 .tb{pointer-events:auto;font-size:13px}
+  #hud .t1 .tb{pointer-events:auto;font-size:12px;padding:2px 7px;border-radius:4px;border-width:1.2px}
   #hud .t1 .tb.mdb.on{border-color:#e0453a;color:#e0453a}
   #hud .t1 .tb[disabled]{border-color:#ccc;color:#555}
   .bq button.cur{background:#2b2b2b;color:#fff}
   .corner{position:fixed;top:14px;z-index:4;font:inherit;font-size:13px;font-weight:700;background:#fff;border:1.5px solid #2b2b2b;border-radius:4px;padding:5px 11px;cursor:pointer;color:#2b2b2b}
+  #credit{position:fixed;left:0;right:0;text-align:center;font-size:12px;font-weight:600;color:#b5b5b5;text-decoration:none;letter-spacing:.3px;pointer-events:auto}
   .hide{display:none!important}
   body.boss #wrap{visibility:hidden}
 </style>
@@ -141,6 +151,7 @@
 <body>
 <div id="wrap">
   <canvas id="c"></canvas>
+  <a id="credit" href="https://www.instagram.com/nookin.dev/" target="_blank" rel="noopener">@nookin.dev</a>
   <div id="hud"><div id="hudtxt"></div><button id="club"></button><button id="mul" class="hide">↺ 멀리건 (1회)</button></div>
   <div id="modepop" class="modal hide"><div class="pk"><div class="pkh"><b>모드 선택</b><button id="mpx">✕</button></div><div class="hb"><div class="bq">
     <button data-m="solo"><b>⛳ 혼자 치기</b><span>편하게 9홀. 스코어와 기록만 남아요.</span></button>
@@ -242,7 +253,7 @@ let W,H,GY,K=6;
 const touchUI=matchMedia('(pointer:coarse)').matches;
 let SG=1;
 function resize(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;SG=W<700?.85:1;cv.width=W*d;cv.height=H*d;cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(d,0,0,d,0,0);GY=Math.round(H-Math.max(112,H*0.16));
-  document.getElementById('hud').style.bottom=(H-GY+156)+'px';}
+  document.getElementById('hud').style.bottom=(H-GY+156)+'px';const cr=document.getElementById('credit');cr.style.top=(GY+80)+'px';cr.style.left=(W/2-60)+'px';cr.style.right='auto';cr.style.width='120px';}
 addEventListener('resize',resize);resize();
 
 /* ---------- rng / date ---------- */
@@ -624,7 +635,7 @@ function drawGolfer(){
   const hx=Math.sin(th)*10,hy=-22+Math.cos(th)*10,cx=Math.sin(th)*26,cy=-22+Math.cos(th)*26;
   line(0,-21,hx,hy);ctx.lineWidth=1.5;line(hx,hy,cx,cy);ctx.fillRect(cx-2,cy-1,4,2);
   ctx.restore();
-  if(charging){ctx.fillStyle='#aaa';ctx.font='10px -apple-system,"Malgun Gothic",sans-serif';ctx.textAlign='center';ctx.fillText(touchUI?'다른 손가락으로 클럽 버튼 → 취소':'Shift·클럽 버튼에 마우스 → 취소',clamp(gx,95,W-95),GY+16);ctx.textAlign='left';if(touchUI||W<700){const gw=72,gh2=10,gx0=Math.round(clamp(gx-gw/2,8,W-gw-8)),gy0=Math.round(GY-44*SG-30);ctx.fillStyle='#fff';ctx.fillRect(gx0-2,gy0-2,gw+4,gh2+4);ctx.strokeStyle=INK;ctx.lineWidth=1.5;ctx.strokeRect(gx0-2,gy0-2,gw+4,gh2+4);ctx.fillStyle=RED;ctx.fillRect(gx0,gy0,Math.round(gw*power),gh2);ctx.fillStyle=INK;ctx.font='700 11px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText(Math.round(power*100)+'%',gx0+gw/2,gy0-6);ctx.textAlign='left'}
+  if(charging){ctx.fillStyle='#aaa';ctx.font='10px -apple-system,"Malgun Gothic",sans-serif';ctx.textAlign='center';ctx.fillText(touchUI?'다른 손가락으로 클럽 버튼 → 취소':'Shift·클럽 버튼에 마우스 → 취소',clamp(gx,95,W-95),GY+16);ctx.textAlign='left';if(true){const gw=72,gh2=10,gx0=Math.round(clamp(gx-gw/2,8,W-gw-8)),gy0=Math.round(GY-44*SG-30);ctx.fillStyle='#fff';ctx.fillRect(gx0-2,gy0-2,gw+4,gh2+4);ctx.strokeStyle=INK;ctx.lineWidth=1.5;ctx.strokeRect(gx0-2,gy0-2,gw+4,gh2+4);ctx.fillStyle=RED;ctx.fillRect(gx0,gy0,Math.round(gw*power),gh2);ctx.fillStyle=INK;ctx.font='700 11px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText(Math.round(power*100)+'%',gx0+gw/2,gy0-6);ctx.textAlign='left'}
   else{const bx=gx-f*24*SG,gh=Math.round(42*SG);ctx.strokeStyle=SOFT;ctx.lineWidth=1;ctx.strokeRect(bx-3,GY-gh-4,6,gh);ctx.fillStyle=RED;const hh=(gh-2)*power;ctx.fillRect(bx-2,GY-5-hh,4,hh)}}
 }
 function rrect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
@@ -669,7 +680,7 @@ function render(){
     {const L=[];for(const z of hole.hz){const n=f>0?z.a:z.b,X=sx(n);if(dd(n)>=3&&(X>W-4||X<4))L.push([dd(n),(z.type==='water'?'물 ':'벙커 ')+dd(n)+'m'])}
      for(const t of hole.trees){const X=sx(t.x);if(dd(t.x)>=3&&(X>W-4||X<4))L.push([dd(t.x),'나무 '+dd(t.x)+'m'])}
      if(dd(ob)>3&&(sx(ob)>W-4||sx(ob)<4))L.push([dd(ob),'OB '+dd(ob)+'m']);
-     L.sort((a,b)=>a[0]-b[0]);offTxt=L.length?(f>0?'화면 밖 → ':'화면 밖 ← ')+L.slice(0,3).map(x=>x[1]).join(' · '):''}
+     L.sort((a,b)=>a[0]-b[0]);offTxt=L.length?L.slice(0,3).map(x=>x[1]).join(' · '):'';if(offTxt){ctx.font='11px -apple-system,"Malgun Gothic",sans-serif';ctx.fillStyle='#999';if(f>0){ctx.textAlign='right';ctx.fillText(offTxt+'  →',W-12,GY+46)}else{ctx.textAlign='left';ctx.fillText('←  '+offTxt,12,GY+46)}}}
     ctx.textAlign='left'}
   // ball
   const by=sy(ball.y)-3+(ball.y<=0.01?bunkerOff(hole,ball.x):0);
@@ -709,8 +720,14 @@ function aheadStr(){if(state!=='aim')return lastAhead;const f=facing(),dd=x=>Mat
 let lastAhead='',offTxt='';
 function hud(){
   const rem=Math.round(Math.abs(hole.hx-ball.x)),w=hole.wind,arrow=w>0?'→':w<0?'←':'·';
-  const modeL=ghost?`⚔️ vs ${ghost.n} · ${friendly?'친선':'정식'} ▾`:betMode?`💰 부장님 내기 · ${friendly?'친선':'정식'} ▾`:'⛳ 혼자 치기 ▾';
-  const s=`<div class="t1"><button class="tb" data-a="course"${ghost?' disabled':''}>${course.name}${ghost?'':' ▾'}</button><button class="tb mdb${betMode?' on':''}" data-a="mode">${modeL}</button></div><div class="t2">${idx+1}번 홀 · PAR ${hole.par} · ${bossTurn?`<b style="color:#e0453a">부장님 차례</b> · ${state==="aim"?strokes+1:strokes}타째 ${bossFast?'(빨리감기)':'(클릭하면 빨리감기)'}`:`${state==="aim"?strokes+1:strokes}타째`}</div><div class="big">${rem}m<small>남음</small></div><div class="t3">합계 <b>${totStr()}</b> · 바람 ${arrow} ${Math.abs(w).toFixed(1)}${betMode?` · <span class="r">${betStatus()}</span>`:''}</div>`+(betMode&&P&&B?`<div class="t3">${bossTurn?`나: ${P.done?P.st+'타로 홀아웃':P.strokes+'타 · '+Math.round(Math.abs(hole.hx-P.x))+'m 남음'}`:`부장님: ${B.done?'<b>'+B.st+'타</b>로 홀아웃':B.strokes+'타 · '+Math.round(Math.abs(hole.hx-B.x))+'m 남음'}`}</div>`:'')+(offTxt&&state==='aim'?`<div class="t2">${offTxt}</div>`:'');
+  const modeL=ghost?`⚔️ vs ${ghost.n} · ${friendly?'친선':'정식'}`:betMode?`💰 부장님 내기 · ${friendly?'친선':'정식'}`:'⛳ 혼자 치기';
+  const shotN=state==='aim'?strokes+1:strokes;
+  let s=`<div class="t1"><button class="tb" data-a="course"${ghost?' disabled':''}>${course.name}</button><button class="tb mdb${betMode?' on':''}" data-a="mode">${modeL}</button></div>`;
+  s+=`<div class="sg"><div><i>홀</i><b>${idx+1}<small>/9</small></b></div><div><i>PAR</i><b>${hole.par}</b></div><div><i>샷</i><b>${shotN}</b></div><div><i>합계</i><b>${totStr()}</b></div><div><i>바람</i><b>${arrow} ${Math.abs(w).toFixed(1)}</b></div></div>`;
+  if(bossTurn)s+=`<div class="turn">▶ 부장님 차례 · ${bossFast?'빨리감기 중':'클릭하면 빨리감기'}</div>`;
+  s+=`<div class="big">${rem}<small>m 남음</small></div>`;
+  if(betMode&&P&&B){const o=bossTurn?P:B,on=bossTurn?'나':'부장님',ost=o.done?`${o.st}타 홀아웃`:`${o.strokes}타 · ${Math.round(Math.abs(hole.hx-o.x))}m`;
+    s+=`<div class="vs"><span>${on}</span><b>${ost}</b><em>${betStatus()}</em></div>`}
   const s2=G(s);
   if(s2!==lastHud){hudtxt.innerHTML=s2;lastHud=s2}
   $('mul').classList.toggle('hide',!(!bossTurn&&betMode&&friendly&&mulLeft>0&&state==='aim'&&preShot&&preShot.hole===idx&&!finished));
@@ -908,8 +925,8 @@ checkHash();
 
 let last=0;
 function loop(ts){const now=ts/1000,dt=Math.min(1/30,last?now-last:0);last=now;
-  if(!hidden){if(!finished){const n=4*(bossTurn?(bossFast?6:2):1);for(let i=0;i<n;i++)update(dt/4)}else T+=dt;updateCam(dt);for(const p of popups)p.t+=dt;popups=popups.filter(p=>p.t<p.life);
-    shakeT=Math.max(0,shakeT-dt);if(bubble){bubble.t+=dt;if(bubble.t>bubble.life)bubble=null}flashT=Math.max(0,flashT-dt);celebT+=dt;
+  if(!hidden){const spd=!finished&&bossTurn?(bossFast?6:2):1;if(!finished){for(let i=0;i<4*spd;i++)update(dt/4)}else T+=dt;updateCam(dt);for(const p of popups)p.t+=dt*spd;popups=popups.filter(p=>p.t<p.life);
+    shakeT=Math.max(0,shakeT-dt);if(bubble){bubble.t+=dt*spd;if(bubble.t>bubble.life)bubble=null}flashT=Math.max(0,flashT-dt);celebT+=dt;
     for(const q of parts){q.t+=dt;q.vy+=700*dt;q.vx*=.995;q.x+=q.vx*dt;q.y+=q.vy*dt;if(q.y>GY-2){q.y=GY-2;q.vy*=-.3;q.vx*=.6}}parts=parts.filter(q=>q.t<q.life)}
   render();if(!finished)hud();requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
